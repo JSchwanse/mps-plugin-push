@@ -570,6 +570,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
     private void setWatchNotificationBackgroundColor(Bundle extras, NotificationCompat.Builder mBuilder, WearableExtender wExtender) {
         int backgroundColor = 0;
         String color = extras.getString("backgroundColor");
+        Log.d(LOG_TAG, "backgroundColor=" + color);
         if (color != null && !"".equals(color)) {
             try {
                 backgroundColor = Color.parseColor(color);
@@ -580,7 +581,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
             Bitmap bmp = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);
             canvas.drawColor(backgroundColor);
-            
+            mBuilder.setLargeIcon(bmp);
             wExtender.setBackground(bmp);
         }
     }
