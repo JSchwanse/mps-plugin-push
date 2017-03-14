@@ -577,7 +577,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
                 Log.e(LOG_TAG, "couldn't parse color for watch background");
             }
             
-            Bitmap bmp = Bitmap.createBitmap(400, 400, Config.ARGB_8888);
+            Bitmap bmp = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bmp);
             canvas.drawColor(backgroundColor);
             
