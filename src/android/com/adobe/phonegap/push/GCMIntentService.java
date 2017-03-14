@@ -325,7 +325,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
     }
 
     public void createNotification(Context context, Bundle extras) {
-        NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(Context.NOTIFICATION_SERVICE);
+        NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(context);
         String appName = getAppName(this);
         String packageName = context.getPackageName();
         Resources resources = context.getResources();
