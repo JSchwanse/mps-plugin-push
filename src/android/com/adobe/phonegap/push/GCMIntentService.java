@@ -408,6 +408,8 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
          *
          */
         setNotificationLargeIcon(extras, packageName, resources, mBuilder, wExtender);
+        
+        setWatchNotificationBackgroundColor(extras, mBuilder, wExtender);
 
         /*
          * Notification Sound
@@ -562,6 +564,24 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
             } catch (NumberFormatException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    
+    private void setWatchNotificationBackgroundColor(Bundle extras, NotificationCompat.Builder mBuilder, WearableExtender wExtender) {
+        int backgroundColor;
+        String color = extras.getString("backgroundColor");
+        if (color != null && !"".equals(color)) {
+            try {
+                backgroundColor = Color.parseColor(color);
+            } catch (IllegalArgumentException e) {
+                Log.e(LOG_TAG, "couldn't parse color for watch background");
+            }
+            
+            Bitmap bmp = Bitmap.createBitmap(400, 400, Config.ARGB_8888);
+            Canvas canvas = new Canvas(bmp);
+            canvas.drawColor(backgroundColor);
+            
+            wExtender.setBackground(bmp);
         }
     }
 
