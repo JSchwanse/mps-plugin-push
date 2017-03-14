@@ -568,7 +568,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
     }
     
     private void setWatchNotificationBackgroundColor(Bundle extras, NotificationCompat.Builder mBuilder, WearableExtender wExtender) {
-        int backgroundColor;
+        int backgroundColor = 0;
         String color = extras.getString("backgroundColor");
         if (color != null && !"".equals(color)) {
             try {
