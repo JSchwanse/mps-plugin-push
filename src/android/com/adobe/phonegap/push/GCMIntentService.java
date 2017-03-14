@@ -2,7 +2,6 @@ package com.adobe.phonegap.push;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -23,6 +22,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.WearableExtender;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
 import android.text.Html;
 import android.text.Spanned;
@@ -325,7 +325,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
     }
 
     public void createNotification(Context context, Bundle extras) {
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManagerCompat mNotificationManager = NotificationManagerCompat.from(Context.NOTIFICATION_SERVICE);
         String appName = getAppName(this);
         String packageName = context.getPackageName();
         Resources resources = context.getResources();
@@ -353,6 +353,8 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
                         .setContentIntent(contentIntent)
                         .setDeleteIntent(deleteIntent)
                         .setAutoCancel(true);
+                        
+        WearableExtender wExtender = new WearableExtender();
 
         SharedPreferences prefs = context.getSharedPreferences(PushPlugin.COM_ADOBE_PHONEGAP_PUSH, Context.MODE_PRIVATE);
         String localIcon = prefs.getString(ICON, null);
@@ -391,7 +393,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
          * If no resource is found, falls
          *
          */
-        setNotificationSmallIcon(context, extras, packageName, resources, mBuilder, localIcon);
+        setNotificationSmallIcon(context, extras, packageName, resources, mBuilder, wExtender, localIcon);
 
         /*
          * Notification Large-Icon
@@ -405,7 +407,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
          * - if none, we don't set the large icon
          *
          */
-        setNotificationLargeIcon(extras, packageName, resources, mBuilder);
+        setNotificationLargeIcon(extras, packageName, resources, mBuilder, wExtender);
 
         /*
          * Notification Sound
@@ -442,7 +444,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
         /*
          * Notification add actions
          */
-        createActions(extras, mBuilder, resources, packageName, notId);
+        createActions(extras, mBuilder, wExtender, resources, packageName, notId);
 
         mNotificationManager.notify(appName, notId, mBuilder.build());
     }
@@ -454,7 +456,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
         intent.putExtra(NOT_ID, notId);
     }
 
-    private void createActions(Bundle extras, NotificationCompat.Builder mBuilder, Resources resources, String packageName, int notId) {
+    private void createActions(Bundle extras, NotificationCompat.Builder mBuilder, WearableExtender wExtender, Resources resources, String packageName, int notId) {
         Log.d(LOG_TAG, "create actions: with in-line");
         String actions = extras.getString(ACTIONS);
         if (actions != null) {
@@ -529,7 +531,8 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
                     wAction = null;
                     pIntent = null;
                 }
-                mBuilder.extend(new WearableExtender().addActions(wActions));
+                wExtender.addActions(wActions);
+                mBuilder.extend(wExtender);
                 wActions.clear();
             } catch(JSONException e) {
                 // nope
@@ -729,7 +732,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
         return output;
     }
 
-    private void setNotificationLargeIcon(Bundle extras, String packageName, Resources resources, NotificationCompat.Builder mBuilder) {
+    private void setNotificationLargeIcon(Bundle extras, String packageName, Resources resources, NotificationCompat.Builder mBuilder, WearableExtender wExtender) {
         String gcmLargeIcon = extras.getString(IMAGE); // from gcm
         String imageType = extras.getString(IMAGE_TYPE, IMAGE_TYPE_SQUARE);
         if (gcmLargeIcon != null && !"".equals(gcmLargeIcon)) {
@@ -737,9 +740,11 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
                 Bitmap bitmap = getBitmapFromURL(gcmLargeIcon);
                 if (IMAGE_TYPE_SQUARE.equalsIgnoreCase(imageType)) {
                     mBuilder.setLargeIcon(bitmap);
+                    wExtender.setBackground(bitmap);
                 } else {
                     Bitmap bm = getCircleBitmap(bitmap);
                     mBuilder.setLargeIcon(bm);
+                    wExtender.setBackground(bm);
                 }
                 Log.d(LOG_TAG, "using remote large-icon from gcm");
             } else {
@@ -750,9 +755,11 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
                     Bitmap bitmap = BitmapFactory.decodeStream(istr);
                     if (IMAGE_TYPE_SQUARE.equalsIgnoreCase(imageType)) {
                         mBuilder.setLargeIcon(bitmap);
+                        wExtender.setBackground(bitmap);
                     } else {
                         Bitmap bm = getCircleBitmap(bitmap);
                         mBuilder.setLargeIcon(bm);
+                        wExtender.setBackground(bm);
                     }
                     Log.d(LOG_TAG, "using assets large-icon from gcm");
                 } catch (IOException e) {
@@ -761,6 +768,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
                     if (largeIconId != 0) {
                         Bitmap largeIconBitmap = BitmapFactory.decodeResource(resources, largeIconId);
                         mBuilder.setLargeIcon(largeIconBitmap);
+                        wExtender.setBackground(largeIconBitmap);
                         Log.d(LOG_TAG, "using resources large-icon from gcm");
                     } else {
                         Log.d(LOG_TAG, "Not setting large icon");
@@ -770,7 +778,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
         }
     }
 
-    private void setNotificationSmallIcon(Context context, Bundle extras, String packageName, Resources resources, NotificationCompat.Builder mBuilder, String localIcon) {
+    private void setNotificationSmallIcon(Context context, Bundle extras, String packageName, Resources resources, NotificationCompat.Builder mBuilder, WearableExtender wExtender, String localIcon) {
         int iconId = 0;
         String icon = extras.getString(ICON);
         if (icon != null && !"".equals(icon)) {
@@ -786,6 +794,7 @@ public class GCMIntentService extends GcmListenerService implements PushConstant
             iconId = context.getApplicationInfo().icon;
         }
         mBuilder.setSmallIcon(iconId);
+        wExtender.setContentIcon(iconId);
     }
 
     private void setNotificationIconColor(String color, NotificationCompat.Builder mBuilder, String localIconColor) {
