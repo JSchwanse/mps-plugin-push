@@ -3,7 +3,7 @@ module.exports = function(context) {
     var path = require('path');
     var platformProjPath = path.resolve(context.opts.projectRoot);
 
-    var AppxManifest = require(path.resolve(platformProjPath, './corodova/lib/AppxManifest.js'));
+    var AppxManifest = require(path.resolve(platformProjPath, './cordova/lib/AppxManifest.js'));
     ['package.phone.appxmanifest', 'package.windows.appxmanifest'].forEach(function(manifestPath) {
         var manifest = AppxManifest.get(path.join(platformProjPath, manifestPath));
         manifest.getVisualElements().setToastCapable(true);
