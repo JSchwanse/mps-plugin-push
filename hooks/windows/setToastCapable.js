@@ -4,8 +4,8 @@ module.exports = function(context) {
     var platformProjPath = path.join(context.opts.projectRoot, 'platforms/windows');
 
     const fs = require('fs');
-    fs.readdirSync(context.opts.projectRoot, (err, files) => {
-        files.forEach(file => {
+    fs.readdirSync(context.opts.projectRoot, function(err, files){
+        files.forEach(function(file){
             console.log(file);
         });
     });
