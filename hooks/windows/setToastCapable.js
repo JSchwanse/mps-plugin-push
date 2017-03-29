@@ -3,15 +3,17 @@ module.exports = function(context) {
     var path = require('path');
     var fs = require('fs');
 
-    var platformProjPath = path.resolve(context.opts.projectRoot);
-    var manifestPath;
-    if (fs.existsSync(path.resolve(platformProjPath, './cordova/lib/AppxManifest.js'))){
-        manifestPath = path.resolve(platformProjPath, './cordova/lib/AppxManifest.js');
+    var localBuildPathAddition = 'platforms/windows/';
+    var manifestPath = 'cordova/lib/AppxManifest.js';
+
+    var platformProjPath;
+    if (fs.existsSync(path.resolve(context.opts.projectRoot, './' + manifestPath))){
+        platformProjPath = path.resolve(context.opts.projectRoot);
     } else {
-        manifestPath = path.resolve(platformProjPath, './platforms/windows/cordova/lib/AppxManifest.js');
+        platformProjPath = path.resolve(context.opts.projectRoot, './' + localBuildPathAddition);
     }
 
-    var AppxManifest = require(manifestPath);
+    var AppxManifest = require(path.join(platformProjPath, manifestPath));
     ['package.phone.appxmanifest', 'package.windows.appxmanifest'].forEach(function(manifestPath) {
         var manifest = AppxManifest.get(path.join(platformProjPath, manifestPath));
         manifest.getVisualElements().setToastCapable(true);
