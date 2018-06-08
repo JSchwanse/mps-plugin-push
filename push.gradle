@@ -18,6 +18,7 @@ android {
     defaultConfig {
         applicationId = doExtractStringFromManifest("package")
         compileSdkVersion 27
+        buildToolsVersion "27.0.1"
         minSdkVersion 21
         targetSdkVersion 27
         multiDexEnabled true
