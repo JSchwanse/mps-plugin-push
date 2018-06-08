@@ -17,9 +17,9 @@ android {
 
     defaultConfig {
         applicationId = doExtractStringFromManifest("package")
-        compileSdkVersion 25
+        compileSdkVersion 21
         minSdkVersion 21
-        targetSdkVersion 25
+        targetSdkVersion 21
         multiDexEnabled true
     }
 }
