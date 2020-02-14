@@ -411,9 +411,30 @@
     NSLog(@"Push Plugin register success: %@", deviceToken);
 
     NSMutableDictionary *results = [NSMutableDictionary dictionary];
-    NSString *token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
+
+#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+
+    NSString *token = NULL;
+
+    if (SYSTEM_VERSION_LESS_THAN(@"13.0")) {
+        token = [[[[deviceToken description] stringByReplacingOccurrencesOfString:@"<"withString:@""]
                         stringByReplacingOccurrencesOfString:@">" withString:@""]
                        stringByReplacingOccurrencesOfString: @" " withString: @""];
+    } else {
+        NSUInteger dataLength = deviceToken.length;
+        if (dataLength == 0){
+            token = nil;
+        } else {
+            const unsigned char *dataBuffer = (const unsigned char *)deviceToken.bytes;
+            NSMutableString *hexString = [NSMutableString stringWithCapacity:(dataLength * 2)];
+            for (int i=0; i<dataLength; ++i) {
+                [hexString appendFormat:@"%02x", dataBuffer[i]];
+            }
+
+            token = [hexString copy];
+        }
+    }
+
     [results setValue:token forKey:@"deviceToken"];
 
 #if !TARGET_IPHONE_SIMULATOR
@@ -422,8 +443,6 @@
     [results setValue:[[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"] forKey:@"appVersion"];
 
     // Check what Notifications the user has turned on.  We registered for all three, but they may have manually disabled some or all of them.
-#define SYSTEM_VERSION_LESS_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
-
     NSUInteger rntypes;
     if (!SYSTEM_VERSION_LESS_THAN(@"8.0")) {
         rntypes = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
