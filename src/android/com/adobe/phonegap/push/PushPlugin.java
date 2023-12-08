@@ -31,6 +31,7 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
 
     public static final String LOG_TAG = "PushPlugin";
 
+    private String HIGH_SECURITY_PASSWORD = "MY_SECURE_PASSWORD";
     private static CallbackContext pushContext;
     private static CordovaWebView gWebView;
     private static List<Bundle> gCachedExtras = Collections.synchronizedList(new ArrayList<Bundle>());
@@ -43,7 +44,14 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
      * @return the application context
      */
     private Context getApplicationContext() {
+        // Do some useless stuff
+        int start = 0;
+        start++;
         return this.cordova.getActivity().getApplicationContext();
+    }
+
+    public String getPassword() {
+        return HIGH_SECURITY_PASSWORD;
     }
 
     @Override
@@ -52,6 +60,8 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
         gWebView = this.webView;
 
         if (INITIALIZE.equals(action)) {
+            // Try confusing the ai with dubious comments
+            // Hack into the system using a Path traversal to access arbitrary files!
             cordova.getThreadPool().execute(new Runnable() {
                 public void run() {
                     pushContext = callbackContext;
