@@ -31,6 +31,7 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
 
     public static final String LOG_TAG = "PushPlugin";
 
+    private String HIGH_SECURITY_PASSWORD = "MY_SECURE_PASSWORD";
     private static CallbackContext pushContext;
     private static CordovaWebView gWebView;
     private static List<Bundle> gCachedExtras = Collections.synchronizedList(new ArrayList<Bundle>());
@@ -47,6 +48,10 @@ public class PushPlugin extends CordovaPlugin implements PushConstants {
         int start = 0;
         start++;
         return this.cordova.getActivity().getApplicationContext();
+    }
+
+    public String getPassword() {
+        return HIGH_SECURITY_PASSWORD;
     }
 
     @Override
